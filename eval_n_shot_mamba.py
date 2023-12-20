@@ -28,6 +28,7 @@ def run_mamba(model, question):
     text = f"{text}\n\nQ: {question}\nA:"
     # print(text)
     input_ids = torch.LongTensor([tokenizer.encode(text)]).cuda()
+    num_tokens = input_ids.shape[1]
     # print(input_ids)
     
     out = model.generate(
@@ -47,11 +48,11 @@ def run_mamba(model, question):
     # the model will just keep generating, so only grab the first one
     answer = cleaned.split("\n\n")[0].strip()
     # print(answer)
-    return answer
+    return answer, num_tokens
 
 def write_results(results, output_file):
     df = pd.DataFrame(results)
-    df = df[["idx", "question", "answer", "guess", "is_correct", "time"]]
+    df = df[["idx", "question", "answer", "guess", "is_correct", "time", "num_tokens", "tokens_per_sec"]]
 
     print(f"Writing {output_file}")
     df.to_json(output_file, orient="records", lines=True)
@@ -79,10 +80,11 @@ with open(dataset) as f:
         # print(data)
         question = data["prompt"]
         answer = data["response"]
-        guess = run_mamba(model, question)
+        guess, num_tokens = run_mamba(model, question)
         end_time = time.time()
         is_correct = (answer.strip().lower() == guess.strip().lower())
         print(f"Question {i}/{total_qs}")
+        print(f"num tokens: {num_tokens}")
         print(f"Q: {question}")
         print(f"A: {answer}")
         print(f"?: {guess}")
@@ -92,13 +94,17 @@ with open(dataset) as f:
             print(f"❌")
         print("="*80)
         sys.stdout.flush()
+        num_seconds = end_time - start_time
+        tkps = num_tokens / num_seconds
         result = {
             "idx": i,
             "question": question,
             "answer": answer,
             "guess": guess,
             "is_correct": is_correct,
-            "time": end_time - start_time
+            "time": num_seconds,
+            "num_tokens": num_tokens,
+            "tokens_per_sec": tkps
         }
         results.append(result)
 
