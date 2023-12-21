@@ -6,7 +6,13 @@ This is the code that goes along with our [Practical ML Dive](https://lu.ma/prac
 
 ~ TLDR ~
 
-The 2.8b model shows a little promise for Question Answering tasks on SQuAD with a little prompt engineering, but overall the model felt a little underwhelming.
+The 2.8b model shows a little promise for Question Answering tasks on SQuAD with a little prompt engineering, but overall the model felt a little underwhelming. It got `7.5%` accuracy on a held out set of the [SQuAD eval set](https://www.oxen.ai/ox/Mamba-Fine-Tune/file/main/squad_val_1k.jsonl).
+
+The 130m model did a little better than prompt engineering the 2.8b after a full train, but still only got `12.5%` accuracy with a raw string match on the held out.
+
+The models are trained to be able to say "I don't know" if there is no context that supports answering the question which I feel is an important property of a QA model.
+
+The trained 130m model can be found on [hugging face](https://huggingface.co/Oxen-AI/mamba-130m-context).
 
 There is code to train models of any size on the SQuAD dataset. The dataloader puts all the data into context-question-answer triples like so
 

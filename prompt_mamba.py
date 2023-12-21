@@ -47,14 +47,20 @@ while True:
     # Debug print to make sure our prompt looks good
     print(prompt)
 
+    # Encode the text to token IDs
+    input_ids = torch.LongTensor([tokenizer.encode(prompt)]).cuda()
+
+    print(prompt)
+
     # Encode the prompt into integers and convert to a tensor on the GPU
     input_ids = torch.LongTensor([tokenizer.encode(prompt)]).cuda()
+    print(input_ids)
     
     # Generate an output sequence of tokens given the input
     # "out" will contain the raw token ids as integers
     out = model.generate(
         input_ids=input_ids,
-        max_length=128,
+        max_length=256,
         eos_token_id=tokenizer.eos_token_id
     )
 
@@ -66,5 +72,5 @@ while True:
     cleaned = decoded.replace(prompt, "")
 
     # the model will just keep generating, so only grab the first one
-    cleaned = cleaned.split("\n\n")[0]
+    # cleaned = cleaned.split("\n\n")[0]
     print(cleaned)
